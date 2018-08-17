@@ -14,6 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import me.geeksploit.jointheflow.dummy.DummyContent;
 
 import java.util.List;
@@ -34,10 +37,16 @@ public class FlowListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
 
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mFlowsDatabaseReference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flow_list);
+
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFlowsDatabaseReference = mFirebaseDatabase.getReference().child("flows");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
