@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -14,8 +15,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import me.geeksploit.jointheflow.data.Flow;
 import me.geeksploit.jointheflow.dummy.DummyContent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,16 +43,52 @@ public class FlowListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
 
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mFlowsDatabaseReference;
+    private ChildEventListener mFlowsChildEventListener;
+    private SimpleItemRecyclerViewAdapter mFlowsAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flow_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFlowsDatabaseReference = mFirebaseDatabase.getReference().child("flows");
+
+        mFlowsChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Flow flow = dataSnapshot.getValue(Flow.class);
+                mFlowsAdapter.add(flow);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Flow flow = dataSnapshot.getValue(Flow.class);
+                mFlowsAdapter.update(flow);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+
+        mFlowsDatabaseReference.addChildEventListener(mFlowsChildEventListener);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,14 +111,15 @@ public class FlowListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        mFlowsAdapter = new SimpleItemRecyclerViewAdapter(this, new ArrayList<Flow>(), mTwoPane);
+        recyclerView.setAdapter(mFlowsAdapter);
     }
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final FlowListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
+        private final List<Flow> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
@@ -98,7 +144,7 @@ public class FlowListActivity extends AppCompatActivity {
         };
 
         SimpleItemRecyclerViewAdapter(FlowListActivity parent,
-                                      List<DummyContent.DummyItem> items,
+                                      List<Flow> items,
                                       boolean twoPane) {
             mValues = items;
             mParentActivity = parent;
@@ -114,8 +160,8 @@ public class FlowListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
+            holder.mIdView.setText(String.valueOf(mValues.get(position).getJoinedCount()));
+            holder.mContentView.setText(mValues.get(position).getTitle());
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
@@ -126,14 +172,24 @@ public class FlowListActivity extends AppCompatActivity {
             return mValues.size();
         }
 
+        public void add(Flow flow) {
+            mValues.add(flow);
+            notifyDataSetChanged();
+        }
+
+        public void update(Flow flow) {
+            mValues.set(mValues.indexOf(flow), flow);
+            notifyDataSetChanged();
+        }
+
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mIdView;
             final TextView mContentView;
 
             ViewHolder(View view) {
                 super(view);
-                mIdView = (TextView) view.findViewById(R.id.id_text);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                mIdView = view.findViewById(R.id.id_text);
+                mContentView = view.findViewById(R.id.content);
             }
         }
     }
