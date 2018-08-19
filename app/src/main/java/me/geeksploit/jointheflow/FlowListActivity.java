@@ -139,6 +139,16 @@ public class FlowListActivity extends AppCompatActivity {
             return mValues.size();
         }
 
+        public void add(Flow flow) {
+            mValues.add(flow);
+            notifyDataSetChanged();
+        }
+
+        public void update(Flow flow) {
+            mValues.set(mValues.indexOf(flow), flow);
+            notifyDataSetChanged();
+        }
+
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mIdView;
             final TextView mContentView;
