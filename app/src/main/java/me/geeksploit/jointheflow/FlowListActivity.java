@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -47,6 +48,9 @@ public class FlowListActivity extends AppCompatActivity {
     private DatabaseReference mFlowsDatabaseReference;
     private ChildEventListener mFlowsChildEventListener;
     private SimpleItemRecyclerViewAdapter mFlowsAdapter;
+
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +87,14 @@ public class FlowListActivity extends AppCompatActivity {
         };
 
         mFlowsDatabaseReference.addChildEventListener(mFlowsChildEventListener);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+            }
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
