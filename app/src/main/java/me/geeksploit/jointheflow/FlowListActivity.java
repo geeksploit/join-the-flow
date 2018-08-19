@@ -17,8 +17,10 @@ import android.widget.TextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import me.geeksploit.jointheflow.data.Flow;
 import me.geeksploit.jointheflow.dummy.DummyContent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +41,7 @@ public class FlowListActivity extends AppCompatActivity {
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mFlowsDatabaseReference;
+    private SimpleItemRecyclerViewAdapter mFlowsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,14 +78,15 @@ public class FlowListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        mFlowsAdapter = new SimpleItemRecyclerViewAdapter(this, new ArrayList<Flow>(), mTwoPane);
+        recyclerView.setAdapter(mFlowsAdapter);
     }
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final FlowListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
+        private final List<Flow> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
@@ -107,7 +111,7 @@ public class FlowListActivity extends AppCompatActivity {
         };
 
         SimpleItemRecyclerViewAdapter(FlowListActivity parent,
-                                      List<DummyContent.DummyItem> items,
+                                      List<Flow> items,
                                       boolean twoPane) {
             mValues = items;
             mParentActivity = parent;
@@ -123,8 +127,8 @@ public class FlowListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
+            holder.mIdView.setText(String.valueOf(mValues.get(position).getJoinedCount()));
+            holder.mContentView.setText(mValues.get(position).getTitle());
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
