@@ -57,6 +57,7 @@ public class FlowListActivity extends AppCompatActivity {
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private FirebaseUser mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,19 +101,9 @@ public class FlowListActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user == null) {
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setAvailableProviders(Arrays.asList(
-                                            new AuthUI.IdpConfig.EmailBuilder().build()))
-                                    .build(),
-                            RC_SIGN_IN);
+                    onSignedOutCleanup();
                 } else {
-                    Toast.makeText(
-                            FlowListActivity.this,
-                            getString(R.string.message_welcome, user.getDisplayName()),
-                            Toast.LENGTH_SHORT)
-                            .show();
+                    onSignedInInitialise(user);
                 }
             }
         };
@@ -141,6 +132,25 @@ public class FlowListActivity extends AppCompatActivity {
         View recyclerView = findViewById(R.id.flow_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
+    }
+
+    private void onSignedOutCleanup() {
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(Arrays.asList(
+                                new AuthUI.IdpConfig.EmailBuilder().build()))
+                        .build(),
+                RC_SIGN_IN);
+    }
+
+    private void onSignedInInitialise(FirebaseUser user) {
+        mUser = user;
+        Toast.makeText(
+                FlowListActivity.this,
+                getString(R.string.message_welcome, user.getDisplayName()),
+                Toast.LENGTH_SHORT)
+                .show();
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
