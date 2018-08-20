@@ -67,34 +67,6 @@ public class FlowListActivity extends AppCompatActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFlowsDatabaseReference = mFirebaseDatabase.getReference().child("flows");
 
-        mFlowsChildEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Flow flow = dataSnapshot.getValue(Flow.class);
-                mFlowsAdapter.add(flow);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Flow flow = dataSnapshot.getValue(Flow.class);
-                mFlowsAdapter.update(flow);
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-
-        mFlowsDatabaseReference.addChildEventListener(mFlowsChildEventListener);
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -151,6 +123,37 @@ public class FlowListActivity extends AppCompatActivity {
                 getString(R.string.message_welcome, user.getDisplayName()),
                 Toast.LENGTH_SHORT)
                 .show();
+        attachDatabaseReadListener();
+    }
+
+    private void attachDatabaseReadListener() {
+        mFlowsChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Flow flow = dataSnapshot.getValue(Flow.class);
+                mFlowsAdapter.add(flow);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Flow flow = dataSnapshot.getValue(Flow.class);
+                mFlowsAdapter.update(flow);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+
+        mFlowsDatabaseReference.addChildEventListener(mFlowsChildEventListener);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
