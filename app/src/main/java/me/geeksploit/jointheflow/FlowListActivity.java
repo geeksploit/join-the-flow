@@ -183,6 +183,8 @@ public class FlowListActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        detachDatabaseReadListener();
+        mFlowsAdapter.clear();
     }
 
     public static class SimpleItemRecyclerViewAdapter
