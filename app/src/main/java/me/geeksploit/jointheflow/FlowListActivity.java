@@ -109,6 +109,7 @@ public class FlowListActivity extends AppCompatActivity {
     private void onSignedOutCleanup() {
         mUser = null;
         mFlowsAdapter.clear();
+        detachDatabaseReadListener();
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -126,6 +127,13 @@ public class FlowListActivity extends AppCompatActivity {
                 Toast.LENGTH_SHORT)
                 .show();
         attachDatabaseReadListener();
+    }
+
+    private void detachDatabaseReadListener() {
+        if (mFlowsChildEventListener == null) return;
+
+        mFlowsDatabaseReference.removeEventListener(mFlowsChildEventListener);
+        mFlowsChildEventListener = null;
     }
 
     private void attachDatabaseReadListener() {
