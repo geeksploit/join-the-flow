@@ -107,6 +107,7 @@ public class FlowListActivity extends AppCompatActivity {
     }
 
     private void onSignedOutCleanup() {
+        mFlowsAdapter.clear();
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -238,6 +239,10 @@ public class FlowListActivity extends AppCompatActivity {
         public void update(Flow flow) {
             mValues.set(mValues.indexOf(flow), flow);
             notifyDataSetChanged();
+        }
+
+        public void clear() {
+            mValues.clear();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
