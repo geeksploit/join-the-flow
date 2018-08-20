@@ -137,6 +137,8 @@ public class FlowListActivity extends AppCompatActivity {
     }
 
     private void attachDatabaseReadListener() {
+        if (mFlowsChildEventListener != null) return;
+
         mFlowsChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
