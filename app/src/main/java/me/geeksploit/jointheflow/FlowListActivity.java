@@ -107,6 +107,7 @@ public class FlowListActivity extends AppCompatActivity {
     }
 
     private void onSignedOutCleanup() {
+        mUser = null;
         mFlowsAdapter.clear();
         startActivityForResult(
                 AuthUI.getInstance()
