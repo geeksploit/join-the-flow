@@ -14,8 +14,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,6 +29,7 @@ import me.geeksploit.jointheflow.data.Flow;
 import me.geeksploit.jointheflow.dummy.DummyContent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,6 +41,8 @@ import java.util.List;
  * item details side-by-side using two vertical panes.
  */
 public class FlowListActivity extends AppCompatActivity {
+
+    public static final int RC_SIGN_IN = 1;
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -92,7 +98,22 @@ public class FlowListActivity extends AppCompatActivity {
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setAvailableProviders(Arrays.asList(
+                                            new AuthUI.IdpConfig.EmailBuilder().build()))
+                                    .build(),
+                            RC_SIGN_IN);
+                } else {
+                    Toast.makeText(
+                            FlowListActivity.this,
+                            getString(R.string.message_welcome, user.getDisplayName()),
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
             }
         };
 
