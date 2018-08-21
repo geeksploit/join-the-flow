@@ -120,12 +120,7 @@ public class FlowListActivity extends AppCompatActivity {
     }
 
     private void onSignedInInitialise(FirebaseUser user) {
-        mUser = user;
-        Toast.makeText(
-                FlowListActivity.this,
-                getString(R.string.message_welcome, user.getDisplayName()),
-                Toast.LENGTH_SHORT)
-                .show();
+        if (mUser == null) mUser = user;
         attachDatabaseReadListener();
     }
 
@@ -171,6 +166,25 @@ public class FlowListActivity extends AppCompatActivity {
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         mFlowsAdapter = new SimpleItemRecyclerViewAdapter(this, new ArrayList<Flow>(), mTwoPane);
         recyclerView.setAdapter(mFlowsAdapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != RC_SIGN_IN) return;
+
+        switch (resultCode) {
+            case RESULT_OK:
+                mUser = mFirebaseAuth.getCurrentUser();
+                Toast.makeText(this, getString(R.string.message_welcome, mUser.getDisplayName()), Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            case RESULT_CANCELED:
+                Toast.makeText(this, R.string.message_signin_cancelled, Toast.LENGTH_SHORT)
+                        .show();
+                finish();
+                break;
+        }
     }
 
     @Override
