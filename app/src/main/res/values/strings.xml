@@ -3,4 +3,5 @@
     <string name="title_flow_detail">Flow Detail</string>
     <string name="message_welcome">Welcome, %s</string>
     <string name="message_signin_cancelled">Sign in cancelled</string>
+    <string name="menu_sign_out">Sign out</string>
 </resources>
