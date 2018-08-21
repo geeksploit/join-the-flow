@@ -289,6 +289,7 @@ public class FlowListActivity extends AppCompatActivity {
 
         public void clear() {
             mValues.clear();
+            notifyDataSetChanged();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
