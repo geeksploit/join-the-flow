@@ -141,12 +141,16 @@ public class FlowListActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Flow flow = dataSnapshot.getValue(Flow.class);
+                flow.setKey(dataSnapshot.getKey());
+                flow.setIsJoined(dataSnapshot.child("joined").hasChild(mUser.getUid()));
                 mFlowsAdapter.add(flow);
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Flow flow = dataSnapshot.getValue(Flow.class);
+                flow.setKey(dataSnapshot.getKey());
+                flow.setIsJoined(dataSnapshot.child("joined").hasChild(mUser.getUid()));
                 mFlowsAdapter.update(flow);
             }
 
