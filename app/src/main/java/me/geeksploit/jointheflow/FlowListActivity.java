@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -295,11 +296,15 @@ public class FlowListActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mIdView;
             final TextView mContentView;
+            final Button mJoin;
+            final Button mLeave;
 
             ViewHolder(View view) {
                 super(view);
                 mIdView = view.findViewById(R.id.id_text);
                 mContentView = view.findViewById(R.id.content);
+                mJoin = view.findViewById(R.id.join);
+                mLeave = view.findViewById(R.id.leave);
             }
         }
     }
