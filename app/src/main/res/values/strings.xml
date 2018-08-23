@@ -4,4 +4,6 @@
     <string name="message_welcome">Welcome, %s</string>
     <string name="message_signin_cancelled">Sign in cancelled</string>
     <string name="menu_sign_out">Sign out</string>
+    <string name="button_join">join</string>
+    <string name="button_leave">leave</string>
 </resources>
