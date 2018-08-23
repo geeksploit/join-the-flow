@@ -187,6 +187,14 @@ public class FlowListActivity extends AppCompatActivity {
         }
     }
 
+    public void joinTheFlow(Flow flow) {
+        mFlowsDatabaseReference.child(flow.getKey()).child("joined").child(mUser.getUid()).setValue(System.currentTimeMillis());
+    }
+
+    private void leaveTheFlow(Flow flow) {
+        mFlowsDatabaseReference.child(flow.getKey()).child("joined").child(mUser.getUid()).removeValue();
+    }
+
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         mFlowsAdapter = new SimpleItemRecyclerViewAdapter(this, new ArrayList<Flow>(), mTwoPane);
         recyclerView.setAdapter(mFlowsAdapter);
