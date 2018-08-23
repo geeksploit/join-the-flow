@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -140,12 +141,16 @@ public class FlowListActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Flow flow = dataSnapshot.getValue(Flow.class);
+                flow.setKey(dataSnapshot.getKey());
+                flow.setIsJoined(dataSnapshot.child("joined").hasChild(mUser.getUid()));
                 mFlowsAdapter.add(flow);
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Flow flow = dataSnapshot.getValue(Flow.class);
+                flow.setKey(dataSnapshot.getKey());
+                flow.setIsJoined(dataSnapshot.child("joined").hasChild(mUser.getUid()));
                 mFlowsAdapter.update(flow);
             }
 
@@ -180,6 +185,14 @@ public class FlowListActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void joinTheFlow(Flow flow) {
+        mFlowsDatabaseReference.child(flow.getKey()).child("joined").child(mUser.getUid()).setValue(System.currentTimeMillis());
+    }
+
+    private void leaveTheFlow(Flow flow) {
+        mFlowsDatabaseReference.child(flow.getKey()).child("joined").child(mUser.getUid()).removeValue();
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -248,6 +261,20 @@ public class FlowListActivity extends AppCompatActivity {
             }
         };
 
+        private final View.OnClickListener mOnClickListenerJoin = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mParentActivity.joinTheFlow((Flow) view.getTag());
+            }
+        };
+
+        private final View.OnClickListener mOnClickListenerLeave = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mParentActivity.leaveTheFlow((Flow) view.getTag());
+            }
+        };
+
         SimpleItemRecyclerViewAdapter(FlowListActivity parent,
                                       List<Flow> items,
                                       boolean twoPane) {
@@ -265,11 +292,28 @@ public class FlowListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(String.valueOf(mValues.get(position).getJoinedCount()));
-            holder.mContentView.setText(mValues.get(position).getTitle());
+            Flow flow = mValues.get(position);
+            holder.mIdView.setText(String.valueOf(flow.getJoinedCount()));
+            holder.mContentView.setText(flow.getTitle());
 
-            holder.itemView.setTag(mValues.get(position));
-            holder.itemView.setOnClickListener(mOnClickListener);
+            if (flow.getIsJoined()) {
+                holder.mJoin.setVisibility(View.GONE);
+
+                holder.mLeave.setTag(flow);
+                holder.mLeave.setVisibility(View.VISIBLE);
+                holder.mLeave.setOnClickListener(mOnClickListenerLeave);
+
+                holder.itemView.setBackgroundColor(mParentActivity.getResources().getColor(android.R.color.holo_green_light));
+            } else {
+                holder.mLeave.setVisibility(View.GONE);
+
+                holder.mJoin.setTag(flow);
+                holder.mJoin.setVisibility(View.VISIBLE);
+                holder.mJoin.setOnClickListener(mOnClickListenerJoin);
+
+                holder.itemView.setBackgroundColor(mParentActivity.getResources().getColor(android.R.color.white));
+            }
+
         }
 
         @Override
@@ -295,11 +339,15 @@ public class FlowListActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mIdView;
             final TextView mContentView;
+            final Button mJoin;
+            final Button mLeave;
 
             ViewHolder(View view) {
                 super(view);
                 mIdView = view.findViewById(R.id.id_text);
                 mContentView = view.findViewById(R.id.content);
+                mJoin = view.findViewById(R.id.join);
+                mLeave = view.findViewById(R.id.leave);
             }
         }
     }

@@ -6,8 +6,6 @@
     android:name="me.geeksploit.jointheflow.FlowListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
     tools:context=".FlowListActivity"
     tools:listitem="@layout/flow_list_content" />
