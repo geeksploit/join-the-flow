@@ -302,12 +302,16 @@ public class FlowListActivity extends AppCompatActivity {
                 holder.mLeave.setTag(flow);
                 holder.mLeave.setVisibility(View.VISIBLE);
                 holder.mLeave.setOnClickListener(mOnClickListenerLeave);
+
+                holder.itemView.setBackgroundColor(mParentActivity.getResources().getColor(android.R.color.holo_green_light));
             } else {
                 holder.mLeave.setVisibility(View.GONE);
 
                 holder.mJoin.setTag(flow);
                 holder.mJoin.setVisibility(View.VISIBLE);
                 holder.mJoin.setOnClickListener(mOnClickListenerJoin);
+
+                holder.itemView.setBackgroundColor(mParentActivity.getResources().getColor(android.R.color.white));
             }
 
         }
