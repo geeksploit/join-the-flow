@@ -292,11 +292,18 @@ public class FlowListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(String.valueOf(mValues.get(position).getJoinedCount()));
-            holder.mContentView.setText(mValues.get(position).getTitle());
+            Flow flow = mValues.get(position);
+            holder.mIdView.setText(String.valueOf(flow.getJoinedCount()));
+            holder.mContentView.setText(flow.getTitle());
 
-            holder.itemView.setTag(mValues.get(position));
-            holder.itemView.setOnClickListener(mOnClickListener);
+            if (flow.getIsJoined()) {
+                holder.mLeave.setTag(flow);
+                holder.mLeave.setOnClickListener(mOnClickListenerLeave);
+            } else {
+                holder.mJoin.setTag(flow);
+                holder.mJoin.setOnClickListener(mOnClickListenerJoin);
+            }
+
         }
 
         @Override
