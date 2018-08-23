@@ -261,6 +261,20 @@ public class FlowListActivity extends AppCompatActivity {
             }
         };
 
+        private final View.OnClickListener mOnClickListenerJoin = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mParentActivity.joinTheFlow((Flow) view.getTag());
+            }
+        };
+
+        private final View.OnClickListener mOnClickListenerLeave = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mParentActivity.leaveTheFlow((Flow) view.getTag());
+            }
+        };
+
         SimpleItemRecyclerViewAdapter(FlowListActivity parent,
                                       List<Flow> items,
                                       boolean twoPane) {
