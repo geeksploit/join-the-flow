@@ -4,6 +4,7 @@ public final class Flow {
 
     private String title;
     private long joinedCount;
+    private boolean isJoined;
     private String key;
 
     public Flow() {
@@ -34,6 +35,14 @@ public final class Flow {
     @Override
     public int hashCode() {
         return getTitle().hashCode();
+    }
+
+    public boolean getIsJoined() {
+        return isJoined;
+    }
+
+    public void setIsJoined(boolean isJoined) {
+        this.isJoined = isJoined;
     }
 
     public String getKey() {
