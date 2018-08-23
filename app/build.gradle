@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'join-the-flow'
+            keyPassword 'JoinTheFlow'
+            storeFile file("$rootDir/join-the-flow.jks")
+            storePassword 'JoinTheFlow'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "me.geeksploit.jointheflow"
@@ -14,6 +22,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
 }
