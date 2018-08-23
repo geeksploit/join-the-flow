@@ -297,10 +297,16 @@ public class FlowListActivity extends AppCompatActivity {
             holder.mContentView.setText(flow.getTitle());
 
             if (flow.getIsJoined()) {
+                holder.mJoin.setVisibility(View.GONE);
+
                 holder.mLeave.setTag(flow);
+                holder.mLeave.setVisibility(View.VISIBLE);
                 holder.mLeave.setOnClickListener(mOnClickListenerLeave);
             } else {
+                holder.mLeave.setVisibility(View.GONE);
+
                 holder.mJoin.setTag(flow);
+                holder.mJoin.setVisibility(View.VISIBLE);
                 holder.mJoin.setOnClickListener(mOnClickListenerJoin);
             }
 
