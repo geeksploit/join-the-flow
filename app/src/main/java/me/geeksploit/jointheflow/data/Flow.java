@@ -4,6 +4,7 @@ public final class Flow {
 
     private String title;
     private long joinedCount;
+    private String key;
 
     public Flow() {
     }
@@ -33,5 +34,13 @@ public final class Flow {
     @Override
     public int hashCode() {
         return getTitle().hashCode();
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }
