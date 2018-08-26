@@ -1,8 +1,10 @@
 package me.geeksploit.jointheflow.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.widget.RemoteViews;
 
@@ -11,6 +13,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import me.geeksploit.jointheflow.FlowListActivity;
 import me.geeksploit.jointheflow.R;
 import me.geeksploit.jointheflow.data.Flow;
 
@@ -27,6 +30,11 @@ public class FlowWidget extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.flow_widget);
         views.setTextViewText(R.id.appwidget_count, String.valueOf(flow.getJoinedCount()));
         views.setTextViewText(R.id.appwidget_text, flow.getTitle());
+
+        // Construct click intent
+        Intent launchApp = new Intent(context, FlowListActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchApp, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.appwidget_root, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
