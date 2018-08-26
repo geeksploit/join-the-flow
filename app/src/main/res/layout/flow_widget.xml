@@ -15,7 +15,7 @@
         android:text="@string/appwidget_count"
         android:textColor="#ffffff"
         android:textSize="24sp"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/appwidget_text"
@@ -23,8 +23,9 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/appwidget_text"
         android:text="@string/appwidget_text"
+        android:maxLines="1"
+        android:textAlignment="center"
         android:textColor="#ffffff"
-        android:textSize="24sp"
-        android:textStyle="bold|italic" />
+        android:textSize="24sp" />
 
 </LinearLayout>
