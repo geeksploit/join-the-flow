@@ -6,4 +6,8 @@
     <string name="menu_sign_out">Sign out</string>
     <string name="button_join">join</string>
     <string name="button_leave">leave</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="appwidget_count">count</string>
+    <string name="configure">Pick a flow to create a new widget</string>
+    <string name="add_widget">Add widget</string>
 </resources>
