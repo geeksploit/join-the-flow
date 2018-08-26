@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -35,32 +34,11 @@ public class FlowWidgetConfigureActivity extends Activity {
     private static final String PREFS_NAME = "me.geeksploit.jointheflow.widget.FlowWidget";
     private static final String PREF_PREFIX_KEY = "appwidget_";
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-    EditText mAppWidgetText;
 
     private SimpleItemRecyclerViewAdapter mFlowsAdapter;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mFlowsDatabaseReference;
     private ChildEventListener mFlowsChildEventListener;
-
-    View.OnClickListener mOnClickListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            final Context context = FlowWidgetConfigureActivity.this;
-
-            // When the button is clicked, store the string locally
-            String widgetText = mAppWidgetText.getText().toString();
-            saveTitlePref(context, mAppWidgetId, widgetText);
-
-            // It is the responsibility of the configuration activity to update the app widget
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            FlowWidget.updateAppWidget(context, appWidgetManager, mAppWidgetId);
-
-            // Make sure we pass back the original appWidgetId
-            Intent resultValue = new Intent();
-            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            setResult(RESULT_OK, resultValue);
-            finish();
-        }
-    };
 
     public FlowWidgetConfigureActivity() {
         super();
@@ -100,8 +78,6 @@ public class FlowWidgetConfigureActivity extends Activity {
         setResult(RESULT_CANCELED);
 
         setContentView(R.layout.flow_widget_configure);
-        mAppWidgetText = (EditText) findViewById(R.id.appwidget_text);
-        findViewById(R.id.add_button).setOnClickListener(mOnClickListener);
 
         // Find the widget id from the intent.
         Intent intent = getIntent();
@@ -116,8 +92,6 @@ public class FlowWidgetConfigureActivity extends Activity {
             finish();
             return;
         }
-
-        mAppWidgetText.setText(loadTitlePref(FlowWidgetConfigureActivity.this, mAppWidgetId));
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFlowsDatabaseReference = mFirebaseDatabase.getReference().child("flows");
@@ -271,4 +245,3 @@ public class FlowWidgetConfigureActivity extends Activity {
         }
     }
 }
-

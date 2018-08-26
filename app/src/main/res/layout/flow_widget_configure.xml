@@ -13,19 +13,6 @@
         android:layout_marginBottom="8dp"
         android:text="@string/configure" />
 
-    <EditText
-        android:id="@+id/appwidget_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text" />
-
-    <Button
-        android:id="@+id/add_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/add_widget" />
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/flow_list"
         android:name="me.geeksploit.jointheflow.widget.FlowWidgetConfigureActivity"
