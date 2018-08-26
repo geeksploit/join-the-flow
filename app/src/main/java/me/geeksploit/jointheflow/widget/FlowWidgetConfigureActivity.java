@@ -6,10 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import java.util.List;
 
 import me.geeksploit.jointheflow.R;
+import me.geeksploit.jointheflow.data.Flow;
 
 /**
  * The configuration screen for the {@link FlowWidget FlowWidget} AppWidget.
@@ -96,6 +103,89 @@ public class FlowWidgetConfigureActivity extends Activity {
         }
 
         mAppWidgetText.setText(loadTitlePref(FlowWidgetConfigureActivity.this, mAppWidgetId));
+    }
+
+    public static class SimpleItemRecyclerViewAdapter
+            extends RecyclerView.Adapter<FlowWidgetConfigureActivity.SimpleItemRecyclerViewAdapter.ViewHolder> {
+
+        private final FlowWidgetConfigureActivity mParentActivity;
+        private final List<Flow> mValues;
+        private final int mAppWidgetId;
+        private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Context context = mParentActivity;
+
+                Flow flow = (Flow) view.getTag();
+
+                // When the button is clicked, store the string locally
+                String widgetText = flow.getKey();
+                saveTitlePref(context, mAppWidgetId, widgetText);
+
+                // It is the responsibility of the configuration activity to update the app widget
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                FlowWidget.updateAppWidget(context, appWidgetManager, mAppWidgetId);
+
+                // Make sure we pass back the original appWidgetId
+                Intent resultValue = new Intent();
+                resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                mParentActivity.setResult(RESULT_OK, resultValue);
+                mParentActivity.finish();
+            }
+        };
+
+        SimpleItemRecyclerViewAdapter(FlowWidgetConfigureActivity parent,
+                                      List<Flow> items,
+                                      int widgetId) {
+            mValues = items;
+            mParentActivity = parent;
+            mAppWidgetId = widgetId;
+        }
+
+        @Override
+        public FlowWidgetConfigureActivity.SimpleItemRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.flow_widget_configure_list_content, parent, false);
+            return new FlowWidgetConfigureActivity.SimpleItemRecyclerViewAdapter.ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(final FlowWidgetConfigureActivity.SimpleItemRecyclerViewAdapter.ViewHolder holder, int position) {
+            Flow flow = mValues.get(position);
+            holder.mContentView.setText(flow.getTitle());
+
+            holder.itemView.setTag(flow);
+            holder.itemView.setOnClickListener(mOnClickListener);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mValues.size();
+        }
+
+        public void add(Flow flow) {
+            mValues.add(flow);
+            notifyDataSetChanged();
+        }
+
+        public void update(Flow flow) {
+            mValues.set(mValues.indexOf(flow), flow);
+            notifyDataSetChanged();
+        }
+
+        public void clear() {
+            mValues.clear();
+            notifyDataSetChanged();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            final TextView mContentView;
+
+            ViewHolder(View view) {
+                super(view);
+                mContentView = view.findViewById(R.id.content);
+            }
+        }
     }
 }
 
