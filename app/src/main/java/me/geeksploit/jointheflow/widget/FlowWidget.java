@@ -3,9 +3,16 @@ package me.geeksploit.jointheflow.widget;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.widget.RemoteViews;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import me.geeksploit.jointheflow.R;
+import me.geeksploit.jointheflow.data.Flow;
 
 /**
  * Implementation of App Widget functionality.
@@ -14,15 +21,36 @@ import me.geeksploit.jointheflow.R;
 public class FlowWidget extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
+                                int appWidgetId, Flow flow) {
 
-        CharSequence widgetText = FlowWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.flow_widget);
-        views.setTextViewText(R.id.appwidget_text, widgetText);
+        views.setTextViewText(R.id.appwidget_count, String.valueOf(flow.getJoinedCount()));
+        views.setTextViewText(R.id.appwidget_text, flow.getTitle());
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    static void updateAppWidget(final Context context, final AppWidgetManager appWidgetManager,
+                                final int appWidgetId) {
+
+        final String flowKey = FlowWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
+        FirebaseDatabase.getInstance().getReference().child("flows").child(flowKey)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Flow flow = dataSnapshot.getValue(Flow.class);
+                        if (flow == null) return;
+                        flow.setKey(dataSnapshot.getKey());
+                        updateAppWidget(context, appWidgetManager, appWidgetId, flow);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     @Override
