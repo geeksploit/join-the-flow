@@ -7,12 +7,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +38,9 @@ public class FlowWidgetConfigureActivity extends Activity {
     EditText mAppWidgetText;
 
     private SimpleItemRecyclerViewAdapter mFlowsAdapter;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mFlowsDatabaseReference;
+    private ChildEventListener mFlowsChildEventListener;
 
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -109,10 +119,68 @@ public class FlowWidgetConfigureActivity extends Activity {
 
         mAppWidgetText.setText(loadTitlePref(FlowWidgetConfigureActivity.this, mAppWidgetId));
 
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFlowsDatabaseReference = mFirebaseDatabase.getReference().child("flows");
 
         View recyclerView = findViewById(R.id.flow_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
+    }
+
+
+    private void detachDatabaseReadListener() {
+        if (mFlowsChildEventListener == null) return;
+
+        mFlowsDatabaseReference.removeEventListener(mFlowsChildEventListener);
+        mFlowsChildEventListener = null;
+    }
+
+    private void attachDatabaseReadListener() {
+        if (mFlowsChildEventListener != null) return;
+
+        mFlowsChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Flow flow = dataSnapshot.getValue(Flow.class);
+                flow.setKey(dataSnapshot.getKey());
+                mFlowsAdapter.add(flow);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Flow flow = dataSnapshot.getValue(Flow.class);
+                flow.setKey(dataSnapshot.getKey());
+                mFlowsAdapter.update(flow);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+
+        mFlowsDatabaseReference.orderByChild("title").addChildEventListener(mFlowsChildEventListener);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        attachDatabaseReadListener();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detachDatabaseReadListener();
+        mFlowsAdapter.clear();
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
