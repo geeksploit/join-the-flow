@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.geeksploit.jointheflow.R;
@@ -27,6 +29,9 @@ public class FlowWidgetConfigureActivity extends Activity {
     private static final String PREF_PREFIX_KEY = "appwidget_";
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     EditText mAppWidgetText;
+
+    private SimpleItemRecyclerViewAdapter mFlowsAdapter;
+
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             final Context context = FlowWidgetConfigureActivity.this;
@@ -103,6 +108,16 @@ public class FlowWidgetConfigureActivity extends Activity {
         }
 
         mAppWidgetText.setText(loadTitlePref(FlowWidgetConfigureActivity.this, mAppWidgetId));
+
+
+        View recyclerView = findViewById(R.id.flow_list);
+        assert recyclerView != null;
+        setupRecyclerView((RecyclerView) recyclerView);
+    }
+
+    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+        mFlowsAdapter = new SimpleItemRecyclerViewAdapter(this, new ArrayList<Flow>(), mAppWidgetId);
+        recyclerView.setAdapter(mFlowsAdapter);
     }
 
     public static class SimpleItemRecyclerViewAdapter
