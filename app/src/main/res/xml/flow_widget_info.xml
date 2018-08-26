@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:configure="me.geeksploit.jointheflow.FlowWidgetConfigureActivity"
+    android:configure="me.geeksploit.jointheflow.widget.FlowWidgetConfigureActivity"
     android:initialKeyguardLayout="@layout/flow_widget"
     android:initialLayout="@layout/flow_widget"
     android:minHeight="40dp"

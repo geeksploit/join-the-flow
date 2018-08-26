@@ -1,9 +1,11 @@
-package me.geeksploit.jointheflow;
+package me.geeksploit.jointheflow.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.widget.RemoteViews;
+
+import me.geeksploit.jointheflow.R;
 
 /**
  * Implementation of App Widget functionality.
