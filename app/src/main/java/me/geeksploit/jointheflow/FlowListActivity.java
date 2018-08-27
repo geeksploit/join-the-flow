@@ -1,13 +1,15 @@
 package me.geeksploit.jointheflow;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +64,8 @@ public class FlowListActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseUser mUser;
 
+    private AppCompatDialog mSuggestNewFlowDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,8 +95,7 @@ public class FlowListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                mSuggestNewFlowDialog.show();
             }
         });
 
@@ -106,6 +110,8 @@ public class FlowListActivity extends AppCompatActivity {
         View recyclerView = findViewById(R.id.flow_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
+
+        setupSuggestNewFlowDialog();
     }
 
     private void onSignedOutCleanup() {
@@ -353,5 +359,28 @@ public class FlowListActivity extends AppCompatActivity {
                 mLeave = view.findViewById(R.id.leave);
             }
         }
+    }
+
+    private void setupSuggestNewFlowDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Get the layout inflater
+        final LayoutInflater inflater = getLayoutInflater();
+
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        builder.setView(inflater.inflate(R.layout.dialog_flow_suggest, null))
+                .setTitle(R.string.dialog_title)
+                // Add action buttons
+                .setPositiveButton(R.string.dialog_suggest, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        EditText newFlowTitle = mSuggestNewFlowDialog.findViewById(R.id.dialog_new_flow_title);
+                        if (newFlowTitle.getText().length() > 0) {
+                            mFlowsDatabaseReference.push().child(getString(R.string.db_node_title))
+                                    .setValue(newFlowTitle.getText().toString());
+                        }
+                    }
+                });
+        mSuggestNewFlowDialog = builder.create();
     }
 }
