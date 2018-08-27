@@ -28,6 +28,11 @@ public class FlowDetailActivity extends AppCompatActivity {
 
     private String mFlowId;
     private DatabaseReference mFlowsDatabaseReference;
+    private ValueEventListener mTimestampEventListener;
+
+    private boolean mJoined;
+    private String mUserId;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,29 +41,16 @@ public class FlowDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        mFlowsDatabaseReference = FirebaseDatabase.getInstance().getReference().child("flows");
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String userId =  FirebaseAuth.getInstance().getUid();
-                mFlowsDatabaseReference.child(mFlowId).child("joined").child(userId)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            leaveTheFlow(mFlowId, userId);
-                        } else {
-                            joinTheFlow(mFlowId, userId);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
+                mFab.setEnabled(false);
+                if (mJoined) {
+                    leaveTheFlow(mFlowId, mUserId);
+                } else {
+                    joinTheFlow(mFlowId, mUserId);
+                }
             }
         });
 
@@ -78,6 +70,14 @@ public class FlowDetailActivity extends AppCompatActivity {
         // http://developer.android.com/guide/components/fragments.html
         //
         mFlowId = getIntent().getStringExtra(FlowDetailFragment.ARG_ITEM_ID);
+        mUserId =  FirebaseAuth.getInstance().getUid();
+
+        mFlowsDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                .child(getString(R.string.db_node_flows))
+                .child(mFlowId)
+                .child(getString(R.string.db_node_joined))
+                .child(mUserId);
+
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
@@ -109,10 +109,57 @@ public class FlowDetailActivity extends AppCompatActivity {
     }
 
     public void joinTheFlow(String flowId, String userId) {
-        mFlowsDatabaseReference.child(flowId).child("joined").child(userId).setValue(System.currentTimeMillis());
+        mFlowsDatabaseReference.setValue(System.currentTimeMillis());
     }
 
     private void leaveTheFlow(String flowId, String userId) {
-        mFlowsDatabaseReference.child(flowId).child("joined").child(userId).removeValue();
+        mFlowsDatabaseReference.removeValue();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        attachDatabaseListener();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        detachDatabaseListener();
+    }
+
+    private void detachDatabaseListener() {
+        if (mTimestampEventListener == null) return;
+        mFlowsDatabaseReference.removeEventListener(mTimestampEventListener);
+        mTimestampEventListener = null;
+    }
+
+    private void attachDatabaseListener() {
+        if (mTimestampEventListener != null) return;
+
+        mTimestampEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Long timestamp = dataSnapshot.getValue(Long.class);
+                mJoined = (timestamp != null);
+                updateFab();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mFlowsDatabaseReference.addValueEventListener(mTimestampEventListener);
+    }
+
+    private void updateFab() {
+        mFab.setEnabled(true);
+        if (mJoined) {
+            mFab.setImageResource(R.drawable.ic_star_white_24dp);
+        } else {
+            mFab.setImageResource(R.drawable.ic_star_border_white_24dp);
+        }
+    }
+
 }
