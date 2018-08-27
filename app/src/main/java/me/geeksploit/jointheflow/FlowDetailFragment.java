@@ -2,6 +2,7 @@ package me.geeksploit.jointheflow;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -95,6 +96,14 @@ public class FlowDetailFragment extends Fragment {
         return rootView;
     }
 
+    Handler mTimerHandler = new Handler();
+    Runnable mTimerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            updateViews();
+            mTimerHandler.postDelayed(this, 500);
+        }
+    };
 
     private void updateViews ()
     {
