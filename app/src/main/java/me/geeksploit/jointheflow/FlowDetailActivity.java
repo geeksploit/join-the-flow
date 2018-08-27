@@ -2,14 +2,21 @@ package me.geeksploit.jointheflow;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * An activity representing a single Flow detail screen. This
@@ -19,6 +26,14 @@ import android.view.MenuItem;
  */
 public class FlowDetailActivity extends AppCompatActivity {
 
+    private String mFlowId;
+    private DatabaseReference mFlowsDatabaseReference;
+    private ValueEventListener mTimestampEventListener;
+
+    private boolean mJoined;
+    private String mUserId;
+    private FloatingActionButton mFab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,12 +41,16 @@ public class FlowDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                mFab.setEnabled(false);
+                if (mJoined) {
+                    leaveTheFlow(mFlowId, mUserId);
+                } else {
+                    joinTheFlow(mFlowId, mUserId);
+                }
             }
         });
 
@@ -50,12 +69,20 @@ public class FlowDetailActivity extends AppCompatActivity {
         //
         // http://developer.android.com/guide/components/fragments.html
         //
+        mFlowId = getIntent().getStringExtra(FlowDetailFragment.ARG_ITEM_ID);
+        mUserId =  FirebaseAuth.getInstance().getUid();
+
+        mFlowsDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                .child(getString(R.string.db_node_flows))
+                .child(mFlowId)
+                .child(getString(R.string.db_node_joined))
+                .child(mUserId);
+
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(FlowDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(FlowDetailFragment.ARG_ITEM_ID));
+            arguments.putString(FlowDetailFragment.ARG_ITEM_ID, mFlowId);
             FlowDetailFragment fragment = new FlowDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -80,4 +107,59 @@ public class FlowDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void joinTheFlow(String flowId, String userId) {
+        mFlowsDatabaseReference.setValue(System.currentTimeMillis());
+    }
+
+    private void leaveTheFlow(String flowId, String userId) {
+        mFlowsDatabaseReference.removeValue();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        attachDatabaseListener();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        detachDatabaseListener();
+    }
+
+    private void detachDatabaseListener() {
+        if (mTimestampEventListener == null) return;
+        mFlowsDatabaseReference.removeEventListener(mTimestampEventListener);
+        mTimestampEventListener = null;
+    }
+
+    private void attachDatabaseListener() {
+        if (mTimestampEventListener != null) return;
+
+        mTimestampEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Long timestamp = dataSnapshot.getValue(Long.class);
+                mJoined = (timestamp != null);
+                updateFab();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mFlowsDatabaseReference.addValueEventListener(mTimestampEventListener);
+    }
+
+    private void updateFab() {
+        mFab.setEnabled(true);
+        if (mJoined) {
+            mFab.setImageResource(R.drawable.ic_star_white_24dp);
+        } else {
+            mFab.setImageResource(R.drawable.ic_star_border_white_24dp);
+        }
+    }
+
 }
