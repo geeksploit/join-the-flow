@@ -1,13 +1,12 @@
 package me.geeksploit.jointheflow;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.RecyclerView;
@@ -45,7 +44,8 @@ import me.geeksploit.jointheflow.data.Flow;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class FlowListActivity extends AppCompatActivity {
+public class FlowListActivity extends AppCompatActivity
+        implements FlowSuggestDialogFragment.FlowSuggestDialogListener {
 
     public static final int RC_SIGN_IN = 1;
 
@@ -63,8 +63,6 @@ public class FlowListActivity extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseUser mUser;
-
-    private AppCompatDialog mSuggestNewFlowDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +93,8 @@ public class FlowListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mSuggestNewFlowDialog.show();
+                new FlowSuggestDialogFragment().show(getSupportFragmentManager(),
+                        FlowSuggestDialogFragment.class.getSimpleName());
             }
         });
 
@@ -110,8 +109,6 @@ public class FlowListActivity extends AppCompatActivity {
         View recyclerView = findViewById(R.id.flow_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
-
-        setupSuggestNewFlowDialog();
     }
 
     private void onSignedOutCleanup() {
@@ -239,6 +236,15 @@ public class FlowListActivity extends AppCompatActivity {
         mFlowsAdapter.clear();
     }
 
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        EditText newFlowTitleInput = dialog.getDialog().findViewById(R.id.dialog_new_flow_title);
+        String flowTitle = newFlowTitleInput.getText().toString();
+        if (flowTitle.isEmpty()) return;
+
+        mFlowsDatabaseReference.push().child(getString(R.string.db_node_title)).setValue(flowTitle);
+    }
+
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
@@ -361,26 +367,4 @@ public class FlowListActivity extends AppCompatActivity {
         }
     }
 
-    private void setupSuggestNewFlowDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Get the layout inflater
-        final LayoutInflater inflater = getLayoutInflater();
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_flow_suggest, null))
-                .setTitle(R.string.dialog_title)
-                // Add action buttons
-                .setPositiveButton(R.string.dialog_suggest, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        EditText newFlowTitle = mSuggestNewFlowDialog.findViewById(R.id.dialog_new_flow_title);
-                        if (newFlowTitle.getText().length() > 0) {
-                            mFlowsDatabaseReference.push().child(getString(R.string.db_node_title))
-                                    .setValue(newFlowTitle.getText().toString());
-                        }
-                    }
-                });
-        mSuggestNewFlowDialog = builder.create();
-    }
 }
