@@ -20,6 +20,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
  * A fragment representing a single Flow detail screen.
  * This fragment is either contained in a {@link FlowListActivity}
@@ -35,13 +39,15 @@ public class FlowDetailFragment extends Fragment {
 
     private String mFlowTitle;
     private String mUserTitle;
-    private TextView mHeaderTextView;
-    private TextView mTimerTextView;
+    @BindView(R.id.flow_detail_header) TextView mHeaderTextView;
+    @BindView(R.id.flow_detail_timer) TextView mTimerTextView;
     private long mStartTime;
 
     private DatabaseReference mFlowsDatabaseReference;
     private ValueEventListener mTimestampEventListener;
     private TimerUpdateTask mAsyncTask;
+
+    private Unbinder mUnbinder;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -91,10 +97,7 @@ public class FlowDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.flow_detail, container, false);
-
-        mHeaderTextView = rootView.findViewById(R.id.flow_detail_header);
-        mTimerTextView = rootView.findViewById(R.id.flow_detail_timer);
-
+        mUnbinder = ButterKnife.bind(this, rootView);
         return rootView;
     }
 
@@ -199,5 +202,12 @@ public class FlowDetailFragment extends Fragment {
             }
             return null;
         }
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUnbinder.unbind();
     }
 }
