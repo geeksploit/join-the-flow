@@ -40,6 +40,7 @@ public class FlowDetailFragment extends Fragment {
     private long mStartTime;
 
     private DatabaseReference mFlowsDatabaseReference;
+    private ValueEventListener mTimestampEventListener;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -94,6 +95,54 @@ public class FlowDetailFragment extends Fragment {
         mTimerTextView = rootView.findViewById(R.id.flow_detail_timer);
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        attachDatabaseListener();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        detachDatabaseListener();
+        flowLeaveCleanup();
+    }
+
+    private void flowLeaveCleanup() {
+        mTimerHandler.removeCallbacks(mTimerRunnable);
+        mTimerTextView.setText("");
+        mHeaderTextView.setText(getString(R.string.flow_detail_intro, mUserTitle, mFlowTitle));
+    }
+
+    private void detachDatabaseListener() {
+        if (mTimestampEventListener == null) return;
+        mFlowsDatabaseReference.removeEventListener(mTimestampEventListener);
+        mTimestampEventListener = null;
+    }
+
+    private void attachDatabaseListener() {
+        if (mTimestampEventListener != null) return;
+
+        mTimestampEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Long timestamp = dataSnapshot.getValue(Long.class);
+                if (timestamp == null) {
+                    flowLeaveCleanup();
+                } else {
+                    mStartTime = timestamp;
+                    mTimerHandler.postDelayed(mTimerRunnable, 0);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mFlowsDatabaseReference.addValueEventListener(mTimestampEventListener);
     }
 
     Handler mTimerHandler = new Handler();
