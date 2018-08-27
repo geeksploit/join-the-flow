@@ -22,4 +22,9 @@
     <string name="db_node_joined" translatable="false">joined</string>
     <string name="db_node_title" translatable="false">title</string>
 
+    <string name="dialog_suggest">suggest</string>
+    <string name="dialog_notice">Please make sure you suggest a reasonable flow which is either creative, educative, or otherwise beneficial to others.</string>
+    <string name="dialog_hint_flow_title">flow title</string>
+    <string name="dialog_title">Suggest a new Flow</string>
+
 </resources>
