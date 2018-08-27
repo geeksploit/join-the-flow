@@ -157,8 +157,10 @@ public class FlowDetailActivity extends AppCompatActivity {
         mFab.setEnabled(true);
         if (mJoined) {
             mFab.setImageResource(R.drawable.ic_star_white_24dp);
+            mFab.setContentDescription(getString(R.string.button_leave));
         } else {
             mFab.setImageResource(R.drawable.ic_star_border_white_24dp);
+            mFab.setContentDescription(getString(R.string.button_join));
         }
     }
 
