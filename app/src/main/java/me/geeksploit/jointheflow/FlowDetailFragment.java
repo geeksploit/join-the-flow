@@ -1,8 +1,8 @@
 package me.geeksploit.jointheflow;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -20,6 +20,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
  * A fragment representing a single Flow detail screen.
  * This fragment is either contained in a {@link FlowListActivity}
@@ -35,12 +39,15 @@ public class FlowDetailFragment extends Fragment {
 
     private String mFlowTitle;
     private String mUserTitle;
-    private TextView mHeaderTextView;
-    private TextView mTimerTextView;
+    @BindView(R.id.flow_detail_header) TextView mHeaderTextView;
+    @BindView(R.id.flow_detail_timer) TextView mTimerTextView;
     private long mStartTime;
 
     private DatabaseReference mFlowsDatabaseReference;
     private ValueEventListener mTimestampEventListener;
+    private TimerUpdateTask mAsyncTask;
+
+    private Unbinder mUnbinder;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -90,10 +97,7 @@ public class FlowDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.flow_detail, container, false);
-
-        mHeaderTextView = rootView.findViewById(R.id.flow_detail_header);
-        mTimerTextView = rootView.findViewById(R.id.flow_detail_timer);
-
+        mUnbinder = ButterKnife.bind(this, rootView);
         return rootView;
     }
 
@@ -111,7 +115,10 @@ public class FlowDetailFragment extends Fragment {
     }
 
     private void flowLeaveCleanup() {
-        mTimerHandler.removeCallbacks(mTimerRunnable);
+        if (mAsyncTask != null) {
+            mAsyncTask.cancel(true);
+            mAsyncTask = null;
+        }
         mTimerTextView.setText("");
         mHeaderTextView.setText(getString(R.string.flow_detail_intro, mUserTitle, mFlowTitle));
     }
@@ -133,7 +140,11 @@ public class FlowDetailFragment extends Fragment {
                     flowLeaveCleanup();
                 } else {
                     mStartTime = timestamp;
-                    mTimerHandler.postDelayed(mTimerRunnable, 0);
+                    if (mAsyncTask != null) {
+                        mAsyncTask.cancel(true);
+                    }
+                    mAsyncTask = new TimerUpdateTask();
+                    mAsyncTask.execute(mStartTime);
                 }
             }
 
@@ -144,15 +155,6 @@ public class FlowDetailFragment extends Fragment {
         };
         mFlowsDatabaseReference.addValueEventListener(mTimestampEventListener);
     }
-
-    Handler mTimerHandler = new Handler();
-    Runnable mTimerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            updateViews();
-            mTimerHandler.postDelayed(this, 500);
-        }
-    };
 
     private void updateViews ()
     {
@@ -177,5 +179,35 @@ public class FlowDetailFragment extends Fragment {
 
         mHeaderTextView.setText(header);
         mTimerTextView.setText(timer);
+    }
+
+    private class TimerUpdateTask extends AsyncTask<Long, String, Void> {
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            updateViews();
+        }
+
+        @Override
+        protected Void doInBackground(Long... longs) {
+            while (true) {
+                publishProgress();
+                if (isCancelled()) break;
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+            return null;
+        }
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUnbinder.unbind();
     }
 }

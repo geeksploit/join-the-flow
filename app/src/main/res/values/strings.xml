@@ -27,4 +27,6 @@
     <string name="dialog_hint_flow_title">flow title</string>
     <string name="dialog_title">Suggest a new Flow</string>
 
+    <string name="error_must_implement" translatable="false">%s must implement %s</string>
+
 </resources>

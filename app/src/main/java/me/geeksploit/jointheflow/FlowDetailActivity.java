@@ -18,6 +18,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * An activity representing a single Flow detail screen. This
  * activity is only used on narrow width devices. On tablet-size devices,
@@ -32,16 +35,17 @@ public class FlowDetailActivity extends AppCompatActivity {
 
     private boolean mJoined;
     private String mUserId;
-    private FloatingActionButton mFab;
+    @BindView(R.id.fab) FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flow_detail);
+        ButterKnife.bind(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -157,8 +161,10 @@ public class FlowDetailActivity extends AppCompatActivity {
         mFab.setEnabled(true);
         if (mJoined) {
             mFab.setImageResource(R.drawable.ic_star_white_24dp);
+            mFab.setContentDescription(getString(R.string.button_leave));
         } else {
             mFab.setImageResource(R.drawable.ic_star_border_white_24dp);
+            mFab.setContentDescription(getString(R.string.button_join));
         }
     }
 
