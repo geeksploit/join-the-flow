@@ -17,6 +17,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A fragment representing a single Flow detail screen.
  * This fragment is either contained in a {@link FlowListActivity}
@@ -34,6 +36,7 @@ public class FlowDetailFragment extends Fragment {
     private String mUserTitle;
     private TextView mHeaderTextView;
     private TextView mTimerTextView;
+    private long mStartTime;
 
     private DatabaseReference mFlowsDatabaseReference;
 
@@ -90,5 +93,31 @@ public class FlowDetailFragment extends Fragment {
         mTimerTextView = rootView.findViewById(R.id.flow_detail_timer);
 
         return rootView;
+    }
+
+
+    private void updateViews ()
+    {
+        long interval = System.currentTimeMillis() - mStartTime;
+
+        final long hr = TimeUnit.MILLISECONDS.toHours(interval);
+        final long min = TimeUnit.MILLISECONDS.toMinutes(interval - TimeUnit.HOURS.toMillis(hr));
+        final long sec = TimeUnit.MILLISECONDS.toSeconds(interval - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+
+        int headerFormat;
+        if (hr > 8)
+            headerFormat = R.string.flow_detail_duration_too_long;
+        else if (hr > 0)
+            headerFormat = R.string.flow_detail_duration_long;
+        else if (min > 0)
+            headerFormat = R.string.flow_detail_duration_medium;
+        else
+            headerFormat = R.string.flow_detail_duration_short;
+
+        String header = getString(headerFormat, mUserTitle, mFlowTitle);
+        String timer = getString(R.string.flow_detail_timer, hr, min, sec);
+
+        mHeaderTextView.setText(header);
+        mTimerTextView.setText(timer);
     }
 }

@@ -11,6 +11,13 @@
     <string name="configure">Pick a flow to create a new widget</string>
     <string name="add_widget">Add widget</string>
 
+    <string name="flow_detail_duration_too_long">Hey, %s!\nWhy not to take a break from %s for a while.\nYou must be exhausted.</string>
+    <string name="flow_detail_duration_long">Hey, %s!\nYou are truly determined about %s.\nDon\'t give up.</string>
+    <string name="flow_detail_duration_medium">Hey, %s!\nYou\'ve been doing %s for quite some time now.\nKeep going.</string>
+    <string name="flow_detail_duration_short">Hey, %s!\nYou\'ve just started %s.\nGood luck with that.</string>
+    <string name="flow_detail_timer">%02d:%02d:%02d</string>
+    <string name="flow_detail_intro">Hey, %s!\nAre you going to do some %s?</string>
+
     <string name="db_node_flows" translatable="false">flows</string>
     <string name="db_node_joined" translatable="false">joined</string>
     <string name="db_node_title" translatable="false">title</string>
