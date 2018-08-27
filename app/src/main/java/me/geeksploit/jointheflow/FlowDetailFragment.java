@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -31,9 +32,10 @@ public class FlowDetailFragment extends Fragment {
 
     private String mFlowTitle;
     private String mUserTitle;
+    private TextView mHeaderTextView;
+    private TextView mTimerTextView;
 
     private DatabaseReference mFlowsDatabaseReference;
-    private ValueEventListener mTimestampEventListener;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -83,6 +85,9 @@ public class FlowDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.flow_detail, container, false);
+
+        mHeaderTextView = rootView.findViewById(R.id.flow_detail_header);
+        mTimerTextView = rootView.findViewById(R.id.flow_detail_timer);
 
         return rootView;
     }
