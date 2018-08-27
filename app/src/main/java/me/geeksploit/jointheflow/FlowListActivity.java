@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.geeksploit.jointheflow.data.Flow;
-import me.geeksploit.jointheflow.dummy.DummyContent;
 
 /**
  * An activity representing a list of Flows. This activity
@@ -243,10 +242,10 @@ public class FlowListActivity extends AppCompatActivity {
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
+                Flow item = (Flow) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(FlowDetailFragment.ARG_ITEM_ID, item.id);
+                    arguments.putString(FlowDetailFragment.ARG_ITEM_ID, item.getKey());
                     FlowDetailFragment fragment = new FlowDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -255,7 +254,7 @@ public class FlowListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, FlowDetailActivity.class);
-                    intent.putExtra(FlowDetailFragment.ARG_ITEM_ID, item.id);
+                    intent.putExtra(FlowDetailFragment.ARG_ITEM_ID, item.getKey());
 
                     context.startActivity(intent);
                 }
@@ -296,6 +295,9 @@ public class FlowListActivity extends AppCompatActivity {
             Flow flow = mValues.get(position);
             holder.mIdView.setText(String.valueOf(flow.getJoinedCount()));
             holder.mContentView.setText(flow.getTitle());
+
+            holder.itemView.setTag(flow);
+            holder.itemView.setOnClickListener(mOnClickListener);
 
             if (flow.getIsJoined()) {
                 holder.mJoin.setVisibility(View.GONE);
