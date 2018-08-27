@@ -1,8 +1,8 @@
 package me.geeksploit.jointheflow;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -41,6 +41,7 @@ public class FlowDetailFragment extends Fragment {
 
     private DatabaseReference mFlowsDatabaseReference;
     private ValueEventListener mTimestampEventListener;
+    private TimerUpdateTask mAsyncTask;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -111,7 +112,10 @@ public class FlowDetailFragment extends Fragment {
     }
 
     private void flowLeaveCleanup() {
-        mTimerHandler.removeCallbacks(mTimerRunnable);
+        if (mAsyncTask != null) {
+            mAsyncTask.cancel(true);
+            mAsyncTask = null;
+        }
         mTimerTextView.setText("");
         mHeaderTextView.setText(getString(R.string.flow_detail_intro, mUserTitle, mFlowTitle));
     }
@@ -133,7 +137,11 @@ public class FlowDetailFragment extends Fragment {
                     flowLeaveCleanup();
                 } else {
                     mStartTime = timestamp;
-                    mTimerHandler.postDelayed(mTimerRunnable, 0);
+                    if (mAsyncTask != null) {
+                        mAsyncTask.cancel(true);
+                    }
+                    mAsyncTask = new TimerUpdateTask();
+                    mAsyncTask.execute(mStartTime);
                 }
             }
 
@@ -144,15 +152,6 @@ public class FlowDetailFragment extends Fragment {
         };
         mFlowsDatabaseReference.addValueEventListener(mTimestampEventListener);
     }
-
-    Handler mTimerHandler = new Handler();
-    Runnable mTimerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            updateViews();
-            mTimerHandler.postDelayed(this, 500);
-        }
-    };
 
     private void updateViews ()
     {
@@ -177,5 +176,28 @@ public class FlowDetailFragment extends Fragment {
 
         mHeaderTextView.setText(header);
         mTimerTextView.setText(timer);
+    }
+
+    private class TimerUpdateTask extends AsyncTask<Long, String, Void> {
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            updateViews();
+        }
+
+        @Override
+        protected Void doInBackground(Long... longs) {
+            while (true) {
+                publishProgress();
+                if (isCancelled()) break;
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+            return null;
+        }
     }
 }
