@@ -44,7 +44,7 @@ public class FlowWidget extends AppWidgetProvider {
                                 final int appWidgetId) {
 
         final String flowKey = FlowWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
-        FirebaseDatabase.getInstance().getReference().child("flows").child(flowKey)
+        FirebaseDatabase.getInstance().getReference().child(context.getString(R.string.db_node_flows)).child(flowKey)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

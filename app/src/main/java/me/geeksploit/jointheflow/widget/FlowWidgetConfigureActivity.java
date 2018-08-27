@@ -94,7 +94,7 @@ public class FlowWidgetConfigureActivity extends Activity {
         }
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFlowsDatabaseReference = mFirebaseDatabase.getReference().child("flows");
+        mFlowsDatabaseReference = mFirebaseDatabase.getReference().child(getString(R.string.db_node_flows));
 
         View recyclerView = findViewById(R.id.flow_list);
         assert recyclerView != null;
@@ -140,7 +140,7 @@ public class FlowWidgetConfigureActivity extends Activity {
             }
         };
 
-        mFlowsDatabaseReference.orderByChild("title").addChildEventListener(mFlowsChildEventListener);
+        mFlowsDatabaseReference.orderByChild(getString(R.string.db_node_title)).addChildEventListener(mFlowsChildEventListener);
     }
 
 

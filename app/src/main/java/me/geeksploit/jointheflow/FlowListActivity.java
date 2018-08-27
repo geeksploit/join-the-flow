@@ -72,7 +72,7 @@ public class FlowListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_flow_list);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFlowsDatabaseReference = mFirebaseDatabase.getReference().child("flows");
+        mFlowsDatabaseReference = mFirebaseDatabase.getReference().child(getString(R.string.db_node_flows));
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -148,7 +148,7 @@ public class FlowListActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Flow flow = dataSnapshot.getValue(Flow.class);
                 flow.setKey(dataSnapshot.getKey());
-                flow.setIsJoined(dataSnapshot.child("joined").hasChild(mUser.getUid()));
+                flow.setIsJoined(dataSnapshot.child(getString(R.string.db_node_joined)).hasChild(mUser.getUid()));
                 mFlowsAdapter.add(flow);
             }
 
@@ -156,7 +156,7 @@ public class FlowListActivity extends AppCompatActivity {
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Flow flow = dataSnapshot.getValue(Flow.class);
                 flow.setKey(dataSnapshot.getKey());
-                flow.setIsJoined(dataSnapshot.child("joined").hasChild(mUser.getUid()));
+                flow.setIsJoined(dataSnapshot.child(getString(R.string.db_node_joined)).hasChild(mUser.getUid()));
                 mFlowsAdapter.update(flow);
             }
 
@@ -194,11 +194,11 @@ public class FlowListActivity extends AppCompatActivity {
     }
 
     public void joinTheFlow(Flow flow) {
-        mFlowsDatabaseReference.child(flow.getKey()).child("joined").child(mUser.getUid()).setValue(System.currentTimeMillis());
+        mFlowsDatabaseReference.child(flow.getKey()).child(getString(R.string.db_node_joined)).child(mUser.getUid()).setValue(System.currentTimeMillis());
     }
 
     private void leaveTheFlow(Flow flow) {
-        mFlowsDatabaseReference.child(flow.getKey()).child("joined").child(mUser.getUid()).removeValue();
+        mFlowsDatabaseReference.child(flow.getKey()).child(getString(R.string.db_node_joined)).child(mUser.getUid()).removeValue();
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
